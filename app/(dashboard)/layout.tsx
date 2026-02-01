@@ -16,11 +16,12 @@ function Layout({ children }: { children: React.ReactNode }) {
                 {/* Main column */}
                 <div className="flex flex-col flex-1 min-h-screen">
                     {/* Header */}
-                    <header className="w-full border-b">
-                        <div className="container flex h-14 items-center justify-between px-6">
+                    <header className="w-full border-b flex flex-row">
+                        <SidebarTrigger className={"m-0"} variant={"ghost"}/>
+
+                        <div className="container flex h-14 items-center justify-between px-1">
 
                             <div className="flex  flex-start items-center gap-3">
-                                <SidebarTrigger className={"m-0"} variant={"ghost"}/>
 
                                 <BreadCrumbHeader />
                             </div>
@@ -37,7 +38,7 @@ function Layout({ children }: { children: React.ReactNode }) {
                     <Separator />
 
                     {/* Content */}
-                    <div className="flex-1 overflow-auto">
+                    <div className="flex-1 overflow-auto ml-3">
                         <div className="container py-4 text-accent-foreground">
                             {children}
                         </div>
