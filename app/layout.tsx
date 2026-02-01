@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import {Toaster} from "sonner";
-import {ThemeProvider} from "next-themes";
 import AppProvider from "@/components/AppProvider";
+import {ClerkProvider, SignedIn, SignedOut, SignInButton, SignUpButton, UserButton} from "@clerk/nextjs";
+import { Button } from "@/components/ui/button";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,11 +26,31 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en">
+  return (<ClerkProvider afterSignOutUrl="/sign-in"
+      appearance={{elements: {
+          formButtonPrimary: "bg-primary hover:bg-primary/80 text-white rounded-full font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 cursor-pointer",
+              }}}>
+  <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+      <SignedOut>
+
+      <header className="flex justify-end items-center p-4 gap-4 h-16">
+          {/* Show the sign-in and sign-up buttons when the user is signed out */}
+              <SignInButton>
+                  <Button className="" variant={"default"}>
+                      Sign In
+                  </Button>
+              </SignInButton>
+              <SignUpButton>
+                  <Button className="" variant={"outline"}>
+                      Sign Up
+                  </Button>
+              </SignUpButton>
+      </header>
+      </SignedOut>
+
       <AppProvider>
         {children}
         <Toaster />
@@ -38,5 +59,6 @@ export default function RootLayout({
       </body>
 
     </html>
+    </ClerkProvider>
   );
 }
