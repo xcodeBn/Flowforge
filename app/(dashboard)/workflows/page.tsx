@@ -1,52 +1,11 @@
-import React, {Suspense} from 'react'
-import {Skeleton} from "@/components/ui/skeleton";
-import {waitFor} from "@/lib/helper/waitFor";
-import {getWorkFlowsForUser} from "@/actions/workflows/getWorkFlowsForUser";
-import {Alert, AlertDescription, AlertTitle} from "@/components/ui/alert";
-import {AlertCircle, InboxIcon} from "lucide-react";
+import React from 'react'
 import CreateWorkFlowDialog from "@/app/(dashboard)/workflows/_components/CreateWorkFlowDialog";
+import {getWorkFlowsForUser} from "@/actions/workflows/getWorkFlowsForUser";
+import WorkflowsList from "@/app/(dashboard)/workflows/_components/WorkflowsList";
 
-function UserWorkFlowsSkeleton() {
-    return (<div className={"space=y=2"}>
-        {
-            [1,2,3,4].map((item)=>(
-                <Skeleton key={item} className={"h-32 w-full"}/>
-            ))
-        }
-    </div>);
-}
+async function WorkFlowsPage() {
+    const workFlows = await getWorkFlowsForUser();
 
-async function UserWorkFlow() {
-
-    const workFlows = await getWorkFlowsForUser()
-    if(!workFlows){
-        return (<Alert variant={"destructive"}>
-            <AlertCircle className={"2-4 h-4"}/>
-            <AlertTitle>Error</AlertTitle>
-            <AlertDescription>Something went wrong...</AlertDescription>
-        </Alert>)
-    }
-
-    if(workFlows.length===0){
-        return <div className={"flex flex-col gap-4 h-full items-center justify-center"}>
-            <div className={"rounded-full bg-accent w-20 h-20  flex items-center justify-center"}>
-                <InboxIcon size={40} className={"stroke-primary"}/>
-            </div>
-
-                <div className={"flex flex-col gap-1 text-center"}>
-                    <p className={"font-bold text-foreground"}>No workflow created yet</p>
-                    <p className={"text-sm text-muted-foreground"}>
-                        Get started by creating a new workflow to automate your tasks.
-                    </p>
-                </div>
-            <CreateWorkFlowDialog triggerText={"Create your first workflow"}/>
-        </div>
-    }
-    return <div>No errors</div>;
-}
-
-function BillingPage() {
-    const name = "alpha page"
     return (
         <div className={"flex-1 flex flex-col h-full "}>
             <div className={"flex justify-between "}>
@@ -61,12 +20,10 @@ function BillingPage() {
                 <CreateWorkFlowDialog />
             </div>
             <div className={"h-full py-6"}>
-                <Suspense fallback={<UserWorkFlowsSkeleton/>}>
-                    <UserWorkFlow/>
-                </Suspense>
+                <WorkflowsList workFlows={workFlows} />
             </div>
         </div>
     )
 }
 
-export default BillingPage
+export default WorkFlowsPage

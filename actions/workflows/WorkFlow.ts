@@ -5,6 +5,7 @@ import {CreateWorkflowSchema, CreateWorkFlowSchemaType} from "@/schema/workflows
 import {auth} from "@clerk/nextjs/server";
 import {prisma} from "@/lib/prisma";
 import {WorkFlowStatus} from "@/types/workflow";
+import {redirect} from "next/navigation";
 
 export async function createWorkFlow({form}:{form:CreateWorkFlowSchemaType}){
     const {success,data} = CreateWorkflowSchema.safeParse(form);
@@ -26,4 +27,10 @@ export async function createWorkFlow({form}:{form:CreateWorkFlowSchemaType}){
             ...data
         }
     })
+
+    if(!result){
+        throw new Error("Failed to create workflow");
+    }
+
+    redirect(`/workflows/editor/${result.id}`);
 }

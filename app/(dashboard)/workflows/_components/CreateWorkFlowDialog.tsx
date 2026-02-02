@@ -1,28 +1,67 @@
 "use client"
 
-import {useState} from "react";
+import {useCallback, useState} from "react";
 import {Dialog, DialogContent, DialogTrigger} from "@/components/ui/dialog";
 import {Button} from "@/components/ui/button";
-import {Layers2Icon} from "lucide-react";
+import {Layers2Icon, Loader2} from "lucide-react";
 import CustomDialogHeader from "@/components/CustomDialogHeader";
 import {useForm} from "react-hook-form";
-import {z} from "zod";
 import {CreateWorkflowSchema, CreateWorkFlowSchemaType} from "@/schema/workflows";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {Textarea} from "@/components/ui/textarea";
+import {useMutation} from "@tanstack/react-query";
+import {createWorkFlow} from "@/actions/workflows/WorkFlow";
+import {toast} from "sonner";
 
 function CreateWorkFlowDialog({triggerText} : {triggerText?: string}) {
     const [open,setOpen] =  useState(false);
+
+
     const form = useForm<CreateWorkFlowSchemaType>(
         {
             resolver : zodResolver(CreateWorkflowSchema),
-            defaultValues : {}
+            defaultValues : {
+                name: "",
+                description: ""
+            }
         }
     );
 
-    return <Dialog open={open} onOpenChange={setOpen}>
+    const {mutate, isPending} = useMutation(
+        {
+            mutationFn: createWorkFlow,
+            onSuccess: () => {
+                toast.success("Workflow created successfully!");
+            },
+            onError: () => {
+                toast.error("Failed to create workflow. Please try again.");
+            }
+        })
+
+
+    const onSubmit = useCallback(
+        (values: CreateWorkFlowSchemaType) => {
+            const loadingToast = toast.loading("Creating your workflow...");
+            mutate({form: values}, {
+                onSuccess: () => {
+                    toast.dismiss(loadingToast);
+                },
+                onError: () => {
+                    toast.dismiss(loadingToast);
+                }
+            });
+        },
+        [mutate]
+    )
+
+    return <Dialog open={open} onOpenChange={
+        (open)=> {
+            form.reset();
+            setOpen(open)
+        }}
+    >
         <DialogTrigger asChild>
             <Button>{triggerText?? "Create Workflow"}</Button>
         </DialogTrigger>
@@ -34,7 +73,7 @@ function CreateWorkFlowDialog({triggerText} : {triggerText?: string}) {
             ></CustomDialogHeader>
             <div className={"p-6"}>
                 <Form {...form}>
-                    <form className={"space-y-8 w-full"}>
+                    <form className={"space-y-8 w-full"} onSubmit={form.handleSubmit(onSubmit)}>
                         <FormField render={({field}) => {
                             return(<FormItem>
                                 <FormLabel className={"flex gap-1 items-center "}>
@@ -66,8 +105,15 @@ function CreateWorkFlowDialog({triggerText} : {triggerText?: string}) {
                                 <FormMessage/>
                             </FormItem>)
                         }} />
-                        <Button typeof={"submit"} className={"w-full"}>
-                            Proceed
+                        <Button type={"submit"} className={"w-full"} disabled={isPending}>
+                            {isPending ? (
+                                <>
+                                    <Loader2 className="animate-spin mr-2 h-4 w-4" />
+                                    Loading...
+                                </>
+                            ) : (
+                                "Proceed"
+                            )}
                         </Button>
                     </form>
                 </Form>
