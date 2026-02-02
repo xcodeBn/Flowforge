@@ -7,14 +7,17 @@ import {Layers2Icon} from "lucide-react";
 import CustomDialogHeader from "@/components/CustomDialogHeader";
 import {useForm} from "react-hook-form";
 import {z} from "zod";
-import {CeateWorkflowSchema} from "@/schema/workflows";
+import {CreateWorkflowSchema, CreateWorkFlowSchemaType} from "@/schema/workflows";
 import {zodResolver} from "@hookform/resolvers/zod";
+import {Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import {Textarea} from "@/components/ui/textarea";
 
 function CreateWorkFlowDialog({triggerText} : {triggerText?: string}) {
     const [open,setOpen] =  useState(false);
-    const form = useForm<z.infer<typeof  CeateWorkflowSchema>>(
+    const form = useForm<CreateWorkFlowSchemaType>(
         {
-            resolver : zodResolver(CeateWorkflowSchema),
+            resolver : zodResolver(CreateWorkflowSchema),
             defaultValues : {}
         }
     );
@@ -29,6 +32,46 @@ function CreateWorkFlowDialog({triggerText} : {triggerText?: string}) {
                 title = "Create New Workflow"
                 subTitle = "Start building your Workflow"
             ></CustomDialogHeader>
+            <div className={"p-6"}>
+                <Form {...form}>
+                    <form className={"space-y-8 w-full"}>
+                        <FormField render={({field}) => {
+                            return(<FormItem>
+                                <FormLabel className={"flex gap-1 items-center "}>
+                                    Name
+                                    <p className={"text-xs text-primary"}>(required)</p>
+                                </FormLabel>
+                                <FormControl>
+                                    <Input {...field}></Input>
+                                </FormControl>
+                                <FormDescription>
+                                    Choose a descriptive name for your workflow to easily identify its purpose.
+                                </FormDescription>
+                                <FormMessage/>
+                            </FormItem>)
+                        }} name={"name"}>
+                        </FormField>
+                        <FormField name={"description"} render={({field}) => {
+                            return(<FormItem>
+                                <FormLabel className={"flex gap-1 items-center "}>
+                                    Description
+                                    <p className={"text-xs text-primary"}>(optional)</p>
+                                </FormLabel>
+                                <FormControl>
+                                    <Textarea className={"resize-none"} {...field}></Textarea>
+                                </FormControl>
+                                <FormDescription>
+                                    Choose a descriptive name for your workflow to easily identify its purpose.
+                                </FormDescription>
+                                <FormMessage/>
+                            </FormItem>)
+                        }} />
+                        <Button typeof={"submit"} className={"w-full"}>
+                            Proceed
+                        </Button>
+                    </form>
+                </Form>
+            </div>
         </DialogContent>
     </Dialog>;
 }
