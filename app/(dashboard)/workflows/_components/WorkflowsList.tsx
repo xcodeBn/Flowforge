@@ -6,8 +6,25 @@ import type { Workflow } from "@/generated/prisma/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Inbox, CheckCircle2, Clock, LayoutGrid, List } from "lucide-react";
+import { Inbox, CheckCircle2, Clock, LayoutGrid, List, MoreVertical, Trash2 } from "lucide-react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 function formatDate(value: string | Date) {
     return new Date(value).toLocaleDateString(undefined, {
@@ -43,6 +60,68 @@ function EmptyState() {
                 </div>
             </CardContent>
         </Card>
+    );
+}
+
+function WorkflowActions({ workflowName, workflowId }: { workflowName: string; workflowId: string }) {
+    const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+
+    const handleDelete = async () => {
+        // TODO: Implement delete workflow action
+        console.log("Deleting workflow:", workflowId);
+        setShowDeleteDialog(false);
+    };
+
+    return (
+        <>
+            <DropdownMenu>
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-8 w-8">
+                                    <MoreVertical className="h-4 w-4" />
+                                    <span className="sr-only">More actions</span>
+                                </Button>
+                            </DropdownMenuTrigger>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>More actions</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+                <DropdownMenuContent align="end">
+                    <DropdownMenuItem
+                        className="text-destructive focus:text-destructive focus:bg-destructive/10"
+                        onClick={() => setShowDeleteDialog(true)}
+                    >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+
+            <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This will permanently delete the workflow <span className="font-semibold">"{workflowName}"</span>.
+                            This action cannot be undone.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={handleDelete}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                            Delete
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+        </>
     );
 }
 
@@ -90,13 +169,16 @@ function WorkflowsList({ workFlows }: { workFlows: Workflow[] }) {
                             <>
                                 <CardHeader className="space-y-2">
                                     <div className="flex items-start justify-between gap-3">
-                                        <div>
+                                        <div className="flex-1">
                                             <CardTitle className="text-xl">{workflow.name}</CardTitle>
                                             <CardDescription>
                                                 {workflow.description || "No description provided."}
                                             </CardDescription>
                                         </div>
-                                        <StatusBadge status={workflow.status} />
+                                        <div className="flex items-center gap-2">
+                                            <StatusBadge status={workflow.status} />
+                                            <WorkflowActions workflowName={workflow.name} workflowId={workflow.id} />
+                                        </div>
                                     </div>
                                     <p className="text-xs text-muted-foreground">
                                         Updated {formatDate(workflow.updatedAt)}
@@ -126,9 +208,12 @@ function WorkflowsList({ workFlows }: { workFlows: Workflow[] }) {
                                             </p>
                                         </div>
                                     </div>
-                                    <Button variant="outline" size="sm" className="h-8 px-3 text-xs shrink-0" asChild>
-                                        <Link href={`/workflows/editor/${workflow.id}`}>Open</Link>
-                                    </Button>
+                                    <div className="flex items-center gap-1 shrink-0">
+                                        <Button variant="outline" size="sm" className="h-8 px-3 text-xs" asChild>
+                                            <Link href={`/workflows/editor/${workflow.id}`}>Open</Link>
+                                        </Button>
+                                        <WorkflowActions workflowName={workflow.name} workflowId={workflow.id} />
+                                    </div>
                                 </div>
                             </CardHeader>
                         )}
