@@ -38,7 +38,7 @@ function Layout({ children }: { children: React.ReactNode }) {
                     <Separator />
 
                     {/* Content */}
-                    <div className="flex-1 overflow-auto ml-3">
+                    <div className="flex-1 overflow-auto mx-3">
                         <div className="container py-4 text-accent-foreground">
                             {children}
                         </div>

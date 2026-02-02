@@ -4,6 +4,7 @@ import {waitFor} from "@/lib/helper/waitFor";
 import {getWorkFlowsForUser} from "@/actions/workflows/getWorkFlowsForUser";
 import {Alert, AlertDescription, AlertTitle} from "@/components/ui/alert";
 import {AlertCircle, InboxIcon} from "lucide-react";
+import CreateWorkFlowDialog from "@/app/(dashboard)/workflows/_components/CreateWorkFlowDialog";
 
 function UserWorkFlowsSkeleton() {
     return (<div className={"space=y=2"}>
@@ -38,6 +39,7 @@ async function UserWorkFlow() {
                         Get started by creating a new workflow to automate your tasks.
                     </p>
                 </div>
+            <CreateWorkFlowDialog triggerText={"Create your first workflow"}/>
         </div>
     }
     return <div>No errors</div>;
@@ -56,6 +58,7 @@ function BillingPage() {
                         Manage your workflows and automation here.
                     </p>
                 </div>
+                <CreateWorkFlowDialog />
             </div>
             <div className={"h-full py-6"}>
                 <Suspense fallback={<UserWorkFlowsSkeleton/>}>
