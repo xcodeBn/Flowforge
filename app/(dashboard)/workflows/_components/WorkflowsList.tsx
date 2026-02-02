@@ -6,6 +6,7 @@ import type { Workflow } from "@/generated/prisma/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Inbox, CheckCircle2, Clock, LayoutGrid, List, MoreVertical, Trash2 } from "lucide-react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import {
@@ -25,6 +26,9 @@ import {
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { deleteWorkflow } from "@/actions/workflows/WorkFlow";
+import { toast } from "sonner";
+import { useMutation } from "@tanstack/react-query";
 
 function formatDate(value: string | Date) {
     return new Date(value).toLocaleDateString(undefined, {
@@ -65,11 +69,37 @@ function EmptyState() {
 
 function WorkflowActions({ workflowName, workflowId }: { workflowName: string; workflowId: string }) {
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+    const [confirmText, setConfirmText] = useState("");
+
+    const deleteMutation = useMutation({
+        mutationFn: deleteWorkflow,
+        onSuccess: () => {
+            toast.success("Workflow deleted successfully!");
+            setShowDeleteDialog(false);
+            setConfirmText("");
+        },
+        onError: (error) => {
+            toast.error(error.message || "Failed to delete workflow. Please try again.");
+        }
+    });
 
     const handleDelete = async () => {
-        // TODO: Implement delete workflow action
-        console.log("Deleting workflow:", workflowId);
-        setShowDeleteDialog(false);
+        const loadingToast = toast.loading("Deleting workflow...");
+        deleteMutation.mutate(workflowId, {
+            onSuccess: () => {
+                toast.dismiss(loadingToast);
+            },
+            onError: () => {
+                toast.dismiss(loadingToast);
+            }
+        });
+    };
+
+    const handleDialogChange = (open: boolean) => {
+        setShowDeleteDialog(open);
+        if (!open) {
+            setConfirmText("");
+        }
     };
 
     return (
@@ -101,7 +131,7 @@ function WorkflowActions({ workflowName, workflowId }: { workflowName: string; w
                 </DropdownMenuContent>
             </DropdownMenu>
 
-            <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+            <AlertDialog open={showDeleteDialog} onOpenChange={handleDialogChange}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
                         <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
@@ -110,13 +140,25 @@ function WorkflowActions({ workflowName, workflowId }: { workflowName: string; w
                             This action cannot be undone.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
+                    <div className="space-y-2">
+                        <p className="text-sm font-medium">
+                            Type <span className="font-semibold text-foreground">{workflowName}</span> to confirm:
+                        </p>
+                        <Input
+                            value={confirmText}
+                            onChange={(e) => setConfirmText(e.target.value)}
+                            placeholder="Enter workflow name"
+                            className="w-full"
+                        />
+                    </div>
                     <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
                         <AlertDialogAction
                             onClick={handleDelete}
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            disabled={confirmText !== workflowName || deleteMutation.isPending}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            Delete
+                            {deleteMutation.isPending ? "Deleting..." : "Delete"}
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
