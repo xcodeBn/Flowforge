@@ -1,7 +1,7 @@
 import React from 'react'
 import CreateWorkFlowDialog from "@/app/(dashboard)/workflows/_components/CreateWorkFlowDialog";
-import {getWorkFlowsForUser} from "@/actions/workflows/getWorkFlowsForUser";
 import WorkflowsList from "@/app/(dashboard)/workflows/_components/WorkflowsList";
+import {getWorkFlowsForUser} from "@/actions/workflows/WorkFlowActions";
 
 async function WorkFlowsPage() {
     const workFlows = await getWorkFlowsForUser();

@@ -12,7 +12,7 @@ import {Form, FormControl, FormDescription, FormField, FormItem, FormLabel, Form
 import { Input } from "@/components/ui/input";
 import {Textarea} from "@/components/ui/textarea";
 import {useMutation} from "@tanstack/react-query";
-import {createWorkFlow} from "@/actions/workflows/WorkFlow";
+import {createWorkFlow} from "@/actions/workflows/WorkFlowActions";
 import {toast} from "sonner";
 
 function CreateWorkFlowDialog({triggerText} : {triggerText?: string}) {

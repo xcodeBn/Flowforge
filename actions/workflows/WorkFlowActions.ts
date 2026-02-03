@@ -1,6 +1,5 @@
 "use server";
 
-import {z} from "zod";
 import {CreateWorkflowSchema, CreateWorkFlowSchemaType} from "@/schema/workflows";
 import {auth} from "@clerk/nextjs/server";
 import {prisma} from "@/lib/prisma";
@@ -63,4 +62,19 @@ export async function deleteWorkflow(id: string) {
     });
 
     revalidatePath("/workflows");
+}
+
+export async function getWorkFlowsForUser() {
+    const {userId} = await auth();
+    if (!userId) {
+        throw new Error("User not authenticated");
+    }
+    return prisma.workflow.findMany({
+        where: {
+            userId
+        },
+        orderBy: {
+            createdAt: "asc"
+        }
+    })
 }

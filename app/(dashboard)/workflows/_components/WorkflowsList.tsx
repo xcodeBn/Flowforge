@@ -26,7 +26,7 @@ import {
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { deleteWorkflow } from "@/actions/workflows/WorkFlow";
+import { deleteWorkflow } from "@/actions/workflows/WorkFlowActions";
 import { toast } from "sonner";
 import { useMutation } from "@tanstack/react-query";
 
